@@ -10,7 +10,7 @@ import { EventService } from './app/services/event.service';
   providers: [EventService],
   template: `
     <div class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Presentation Calendar</h1>
+      <h1 class="text-2xl font-bold mb-4">Calendrier annuel des activités 2025 | TechZara</h1>
       <app-calendar></app-calendar>
     </div>
   `,

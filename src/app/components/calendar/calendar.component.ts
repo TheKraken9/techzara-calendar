@@ -5,6 +5,9 @@ import { EventService } from '../../services/event.service';
 import { CalendarEvent } from '../../models/event.model';
 import { EventModalComponent } from '../event-modal/event-modal.component';
 import { EventDetailsComponent } from '../event-details/event-details.component';
+import {MatDialog} from "@angular/material/dialog";
+import {ConfirmDialogComponent} from "../confirm-dialog/confirm-dialog.component";
+import { fr } from 'date-fns/locale';
 
 @Component({
   selector: 'app-calendar',
@@ -13,18 +16,18 @@ import { EventDetailsComponent } from '../event-details/event-details.component'
   template: `
     <div class="p-4">
       <div class="flex items-center justify-between mb-4">
-        <button 
-          (click)="previousMonth()" 
-          class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+        <button
+            (click)="previousMonth()"
+            class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         >
           Précédent
         </button>
         <div class="text-2xl font-bold">
           {{ currentMonthYear }}
         </div>
-        <button 
-          (click)="nextMonth()" 
-          class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+        <button
+            (click)="nextMonth()"
+            class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         >
           Suivant
         </button>
@@ -37,30 +40,34 @@ import { EventDetailsComponent } from '../event-details/event-details.component'
           <div [class]="'p-2 border rounded hover:bg-gray-50 min-h-[80px] relative ' + (isCurrentMonth(date) ? '' : 'bg-gray-50')">
             <div class="flex justify-between items-center mb-2">
               <span>{{ date | date:'d' }}</span>
-              <button 
-                *ngIf="isCurrentMonth(date)"
-                (click)="openAddEventModal(date)"
-                class="text-blue-500 hover:text-blue-700 font-bold text-lg"
+              <button
+                  *ngIf="isCurrentMonth(date) && !isPastDate(date)"
+                  (click)="openAddEventModal(date)"
+                  class="text-blue-500 hover:text-blue-700 font-bold text-lg"
               >
                 +
               </button>
             </div>
-            <div *ngFor="let event of getEventsForDate(date)" 
+            <div *ngFor="let event of getEventsForDate(date)"
                  class="text-xs bg-blue-100 p-1 mb-1 rounded group relative">
               <div class="flex justify-between items-center">
                 <span class="cursor-pointer" (click)="openEventDetails(event)">
-                  {{ event.nom }} - {{ event.heure }}
+                  {{ event.prenoms }} - {{ event.heure }}
                 </span>
                 <div class="flex gap-1">
-                  <button 
-                    (click)="editEvent(event)"
-                    class="text-blue-500 hover:text-blue-700"
+                  <button
+                      *ngIf="!isPastDate(date)"
+                      (click)="editEvent(event)"
+                      class="text-blue-500 hover:text-blue-700"
+                      style="font-size: 1.3rem; padding: 0.1rem;"
                   >
                     ✎
                   </button>
-                  <button 
-                    (click)="deleteEvent(event)"
-                    class="text-red-500 hover:text-red-700"
+                  <button
+                      *ngIf="!isPastDate(date)"
+                      (click)="deleteEvent(event)"
+                      class="text-red-500 hover:text-red-700"
+                      style="font-size: 1.8rem; padding: 0.3rem;"
                   >
                     -
                   </button>
@@ -97,7 +104,7 @@ export class CalendarComponent implements OnInit {
   editingEvent: CalendarEvent | null = null;
   currentDate: Date;
 
-  constructor(private eventService: EventService) {
+  constructor(private eventService: EventService, private dialog: MatDialog) {
     this.currentDate = setYear(new Date(), 2025);
     this.currentDate.setMonth(0);
   }
@@ -115,7 +122,7 @@ export class CalendarComponent implements OnInit {
     const start = startOfWeek(startOfMonth(this.currentDate));
     const end = endOfWeek(endOfMonth(this.currentDate));
     this.calendarDays = eachDayOfInterval({ start, end });
-    this.currentMonthYear = format(this.currentDate, 'MMMM yyyy');
+    this.currentMonthYear = format(this.currentDate, 'MMMM yyyy', { locale: fr });
   }
 
   isCurrentMonth(date: Date): boolean {
@@ -141,10 +148,18 @@ export class CalendarComponent implements OnInit {
   }
 
   deleteEvent(event: CalendarEvent) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
-      this.eventService.deleteEvent(event.id!);
-      this.loadEvents();
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { message: 'Êtes-vous sûr de vouloir supprimer cet événement ?' },
+      panelClass: 'confirm-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.eventService.deleteEvent(event.id!);
+        this.loadEvents();
+      }
+    });
   }
 
   openEventDetails(event: CalendarEvent) {
@@ -181,5 +196,11 @@ export class CalendarComponent implements OnInit {
   previousMonth() {
     this.currentDate = subMonths(this.currentDate, 1);
     this.loadCalendarDays();
+  }
+
+  isPastDate(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
   }
 }
