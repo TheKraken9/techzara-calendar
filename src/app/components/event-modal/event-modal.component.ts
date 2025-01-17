@@ -26,7 +26,7 @@ import { CalendarEvent } from '../../models/event.model';
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Prénoms</label>
           <input 
-            type="text" 
+            type="text"     
             [(ngModel)]="eventData.prenoms"
             class="w-full p-2 border rounded"
           >
