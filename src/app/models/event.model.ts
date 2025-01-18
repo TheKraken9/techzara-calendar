@@ -5,6 +5,6 @@ export interface CalendarEvent {
   prenoms: string;
   theme: string;
   heure: string;
-  type: 'atelier' | 'formation';
+  type: 'atelier' | 'formation' | 'reunion' | 'evenement' | 'autre' | string;
   description: string;
 }
