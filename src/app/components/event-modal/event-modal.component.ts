@@ -1,17 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, EventEmitter, Input, LOCALE_ID, OnInit, Output} from '@angular/core';
+import {CommonModule, registerLocaleData} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarEvent } from '../../models/event.model';
+import localefr from '@angular/common/locales/fr';
+
+registerLocaleData(localefr);
 
 @Component({
   selector: 'app-event-modal',
   standalone: true,
+  providers: [{provide: LOCALE_ID, useValue: 'fr'}],
   imports: [CommonModule, FormsModule],
   template: `
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div class="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 class="text-xl font-bold mb-4">
-          {{ editingEvent ? 'Modifier' : 'Ajouter' }} un événement pour le {{ selectedDate | date }}
+          {{ editingEvent ? 'Modifier' : 'Ajouter' }} un événement pour le {{ selectedDate | date:'fullDate':'':'fr' }}
         </h2>
 
         <div class="mb-4">

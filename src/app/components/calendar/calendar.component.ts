@@ -37,7 +37,7 @@ import { fr } from 'date-fns/locale';
           {{ day }}
         </div>
         <ng-container *ngFor="let date of calendarDays">
-          <div [class]="'p-2 border rounded hover:bg-gray-50 min-h-[80px] relative ' + (isCurrentMonth(date) ? '' : 'bg-gray-50')">
+          <div [class]="'p-2 border rounded hover:bg-gray-50 min-h-[80px] relative ' + (isCurrentMonth(date) ? '' : 'bg-gray-50') + (isToday(date) ? ' bg-yellow-200' : '')">
             <div class="flex justify-between items-center mb-2">
               <span>{{ date | date:'d' }}</span>
               <button
@@ -51,9 +51,9 @@ import { fr } from 'date-fns/locale';
             <div *ngFor="let event of getEventsForDate(date)"
                  class="text-xs bg-blue-100 p-1 mb-1 rounded group relative">
               <div class="flex justify-between items-center">
-                <span class="cursor-pointer" (click)="openEventDetails(event)">
-                  {{ event.prenoms }} - {{ event.heure }}
-                </span>
+        <span class="cursor-pointer" (click)="openEventDetails(event)">
+          {{ event.prenoms }} - {{ event.heure }}
+        </span>
                 <div class="flex gap-1">
                   <button
                       *ngIf="!isPastDate(date)"
@@ -202,5 +202,12 @@ export class CalendarComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date < today;
+  }
+
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
   }
 }

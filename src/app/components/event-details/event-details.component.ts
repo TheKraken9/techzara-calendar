@@ -14,7 +14,7 @@ import { CalendarEvent } from '../../models/event.model';
         <div class="space-y-4">
           <div>
             <span class="font-medium">Date:</span>
-            <p>{{ event?.date | date }}</p>
+            <p>{{ event?.date | date:'fullDate':'':'fr' }}</p>
           </div>
           
           <div>
